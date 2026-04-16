@@ -27,7 +27,7 @@ This system processes documents like PDF, JSON, TXT, and CSV and uses Gemini AI 
 - Automatic file type detection  
 
 ## 🖼️ Output
-(Add screenshots here – Output, Implementation, Problem Statement)
+
 
 ## ▶️ How to Run
 1. Clone the repository  
