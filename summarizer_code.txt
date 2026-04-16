@@ -1,0 +1,56 @@
+import pathlib
+import os
+import json
+import pandas as pd
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+model = genai.GenerativeModel("gemini-2.0-flash")
+
+pdf_path = pathlib.Path("data/what is semisupervised ml.pdf")
+json_path = pathlib.Path("data/sample.json")
+txt_path = pathlib.Path("data/OOPs_practicals.txt")
+csv_path = pathlib.Path("data/weatherPrediction.csv")
+
+def summarize_file(filepath):
+    ext = filepath.suffix.lower()
+    prompt = "Summarize this document in simple terms."
+
+    if ext == ".pdf":
+        with open(filepath, "rb") as f:
+            response = model.generate_content(
+                [prompt, {"mime_type": "application/pdf", "data": f.read()}]
+            )
+        return response.text
+
+    elif ext == ".json":
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        text = json.dumps(data, indent=2)
+        response = model.generate_content(f"{prompt}\n\n{text[:15000]}")
+        return response.text
+
+    elif ext == ".txt":
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+        response = model.generate_content(f"{prompt}\n\n{text[:15000]}")
+        return response.text
+
+    elif ext == ".csv":
+        df = pd.read_csv(filepath)
+        sample = df.head(10).to_string()
+        response = model.generate_content(f"{prompt}\n\nHere is the data:\n{sample}")
+        return response.text
+
+    else:
+        return "Unsupported file type."
+
+for file in [pdf_path, json_path, txt_path, csv_path]:
+    if file.exists():
+        print(f"\n--- Summary for {file.name} ---\n")
+        print(summarize_file(file))
+    else:
+        print(f"\nFile not found: {file}\n")

@@ -1,0 +1,23 @@
+import streamlit as st
+import google.generativeai as genai
+import os
+import json
+import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("GOOGLE_API_KEY")
+
+if not api_key:
+    st.error("Missing API Key")
+else:
+    genai.configure(api_key=api_key)
+
+model = genai.GenerativeModel("gemini-2.0-flash")
+
+st.title("Chat with Documents")
+
+uploaded_file = st.file_uploader("Upload file", type=["pdf","json","txt","csv"])
+
+if uploaded_file:
+    st.success(f"Uploaded: {uploaded_file.name}")
